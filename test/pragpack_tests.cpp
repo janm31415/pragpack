@@ -3450,6 +3450,23 @@ namespace prag
       TEST_EQ(3.0, *p++);
       TEST_EQ(4.0, *p++);
       }
+
+    void tracetest()
+      {
+      matrix<double> m(5, 5);
+      for (int i = 0; i < 5; ++i)
+        {
+        for (int j = 0; j < 5; ++j)
+          {
+          m(i, j) = (double)(i * 5 + j);          
+          }
+        }
+      m(0, 0) = 100.0;
+      double tr = trace(m);
+      TEST_EQ(100. + (1.*5. + 1.) + (2.*5. + 2.) + (3.*5. + 3.) + (4.*5. + 4.), tr);
+      tr = trace(m+m);
+      TEST_EQ((100. + (1.*5. + 1.) + (2.*5. + 2.) + (3.*5. + 3.) + (4.*5. + 4.))*2.0, tr);
+      }
     }   
   }
 
@@ -3610,4 +3627,5 @@ void run_all_pragpack_tests()
   aliasing();
   noaliasing();
   datatest();
+  tracetest();
   }

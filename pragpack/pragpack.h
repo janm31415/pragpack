@@ -3,8 +3,8 @@
 // PrAGPack  :  Pragmatic Algebra Gems Package
 //
 // Author    :  Jan Maes                                            
-// Version   :  1.1
-// Date      :  09 January 2020
+// Version   :  1.2
+// Date      :  31 January 2020
 // License   :  MIT License
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,8 @@ V1.0: 24 September 2019
 V1.1: 09 January 2020
   - added evaluate_before_assigning flag to automatically avoid aliasing effects
   - added data() method for raw pointer access
+V1.2: 31 January 2020
+  - added trace()
 */
 
 
@@ -170,6 +172,12 @@ namespace prag
   */
   template <class T, class Container >
   T norm(const matrix<T, Container>& a);
+
+  /*
+  Returns the trace of the matrix.
+  */
+  template <class T, class Container >
+  T trace(const matrix<T, Container>& a);
 
   /*
   constructs the qr decomposition of a rectangular mxn matrix a with pivoting, i.e. a*p = q*r.
@@ -2135,6 +2143,38 @@ namespace prag
       sum += (double)value*value;
       }
     return (double)std::sqrt((double)sum);
+    }
+
+  ///////////////////////////////////////////////////////////////////////////////
+  // Trace
+  ///////////////////////////////////////////////////////////////////////////////
+
+  template <class T, class Container >
+  T trace(const matrix<T, Container>& a)
+    {
+    auto it = diagonal(a);
+    uint64_t sz = std::min(a.rows(), a.cols());
+    T sum = *it;
+    for (uint64_t i = 1; i < sz; ++i)
+      {
+      ++it;
+      sum += (T)*it;
+      }
+    return (T)sum;
+    }
+
+  template <class ExprOp>
+  double trace(Expr<ExprOp> expr)
+    {    
+    auto it = diagonal(expr);
+    uint64_t sz = std::min(expr.rows(), expr.cols());
+    double sum = *it;
+    for (uint64_t i = 1; i < sz; ++i)
+      {
+      ++it;      
+      sum += (double)*it;
+      }
+    return sum;
     }
 
   ///////////////////////////////////////////////////////////////////////////////

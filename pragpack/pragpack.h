@@ -3,8 +3,8 @@
 // PrAGPack  :  Pragmatic Algebra Gems Package
 //
 // Author    :  Jan Maes                                            
-// Version   :  1.2
-// Date      :  31 January 2020
+// Version   :  1.3
+// Date      :  30 April 2020
 // License   :  MIT License
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,9 @@ V1.1: 09 January 2020
   - added data() method for raw pointer access
 V1.2: 31 January 2020
   - added trace()
+V1.3: 30 April 2020
+  - allowing svd when m < n
+  - concatenation of matrices with << operator in horizontal or vertical direction
 */
 
 
@@ -432,6 +435,75 @@ namespace prag
 
     matrix<T, Container>* _m;
     typename matrix<T, Container>::iterator _it;
+    };
+
+  template <class T, class Container>
+  struct CommaConcatenator
+    {
+    CommaConcatenator(matrix<T, Container>* m, const matrix<T, Container>& first_matrix) : _m(m)
+      {
+      assert(_m->rows() == first_matrix.rows() || _m->cols() == first_matrix.cols());
+      vertical = _m->rows() > first_matrix.rows();    
+      if (vertical)
+        {
+        _it = _m->begin();
+        for (auto v : first_matrix)
+          *_it++ = v;
+        }
+      else
+        {
+        _it = _m->begin();
+        auto tmp_it = _it;
+        auto tgt_it = first_matrix.begin();
+        for (int r = 0; r < _m->rows() - 1; ++r)
+          {
+          for (int c = 0; c < first_matrix.cols(); ++c)
+            {
+            *tmp_it++ = *tgt_it++;
+            }
+          tmp_it += _m->cols() - first_matrix.cols();
+          }
+        for (int c = 0; c < first_matrix.cols(); ++c)
+          {
+          *tmp_it++ = *tgt_it++;
+          }
+
+        _it += first_matrix.cols();
+        }
+      }
+
+    CommaConcatenator& operator,(const matrix<T, Container>& i)
+      {
+      assert(vertical ? _m->cols() == i.cols() : _m->rows() == i.rows());
+      if (vertical)
+        {
+        for (auto v : i)
+          *_it++ = v;
+        }
+      else
+        {
+        auto tmp_it = _it;
+        auto tgt_it = i.begin();
+        for (int r = 0; r < _m->rows()-1; ++r)
+          {
+          for (int c = 0; c < i.cols(); ++c)
+            {
+            *tmp_it++ = *tgt_it++;
+            }
+          tmp_it += _m->cols() - i.cols();
+          }
+        for (int c = 0; c < i.cols(); ++c)
+          {
+          *tmp_it++ = *tgt_it++;
+          }
+        _it += i.cols();
+        }
+      return *this;
+      }
+
+    matrix<T, Container>* _m;
+    typename matrix<T, Container>::iterator _it;
+    bool vertical;
     };
 
   template <class T>
@@ -1568,9 +1640,16 @@ namespace prag
     }
 
   template <class T, class Container, class T2>
-  CommaInitializer<T, Container> operator << (matrix<T, Container>& m, T2 value)
+  CommaInitializer<T, Container> operator << (matrix<T, Container>& m, const T2& value)
     {
     CommaInitializer<T, Container> ci(&m, (T)value);
+    return ci;
+    }
+
+  template <class T, class Container>
+  CommaConcatenator<T, Container> operator << (matrix<T, Container>& m, const matrix<T, Container>& matrix_to_concat)
+    {
+    CommaConcatenator<T, Container> ci(&m, matrix_to_concat);
     return ci;
     }
 
@@ -2213,8 +2292,6 @@ namespace prag
     template <class T, class Matrix_mxn, class Matrix_nxn, class Vector_n>
     bool _svd(int m, int n, Matrix_mxn& a, Vector_n& w, Matrix_nxn& v, Vector_n& rv1)
       {
-      if (m < n)
-        return false;
       int flag, i, its, j, jj, k, l = 0, nm = 0;
       T anorm, c, f, g, h, s, scale, x, y, z;
       g = scale = anorm = (T)0; /* Householder reduction to bidiagonal form */

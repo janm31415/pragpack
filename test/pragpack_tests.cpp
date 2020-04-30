@@ -270,6 +270,35 @@ namespace prag
         }
       }
 
+    void svd_3()
+      {
+      int m = 3;
+      int n = 4;
+      matf A(m, n);
+      for (int i = 1; i <= 12; ++i)
+        A[(i - 1) % 3][(i - 1) / 3] = float(i);
+      matf A_copy(A);
+
+      matf sigma;
+      matf V;
+
+      bool res = svd(A, sigma, V);
+      TEST_ASSERT(res);
+
+      for (int r = 0; r < m; ++r)
+        {
+        for (int c = 0; c < n; ++c)
+          {
+          float val = 0.f;
+          for (int k = 0; k < n; ++k)
+            {
+            val += A[r][k] * sigma(k) * V[c][k];
+            }
+          TEST_EQ_CLOSE(A_copy[r][c], val, 1e-5);
+          }
+        }
+      }
+
     void pseudo_inverse_1()
       {
       int m = 3;
@@ -403,6 +432,108 @@ namespace prag
       TEST_ASSERT(n2 < 1e-8);
       }
 
+    void pseudo_inverse_3()
+      {
+      int m = 6;
+      int n = 8;
+      mat A(m, n);
+
+      A[0][0] = 64;
+      A[1][0] = 2;
+      A[2][0] = 3;
+      A[3][0] = 61;
+      A[4][0] = 60;
+      A[5][0] = 6;
+      A[0][1] = 9;
+      A[1][1] = 55;
+      A[2][1] = 54;
+      A[3][1] = 12;
+      A[4][1] = 13;
+      A[5][1] = 51;
+      A[0][2] = 17;
+      A[1][2] = 47;
+      A[2][2] = 46;
+      A[3][2] = 20;
+      A[4][2] = 21;
+      A[5][2] = 43;
+      A[0][3] = 40;
+      A[1][3] = 26;
+      A[2][3] = 27;
+      A[3][3] = 37;
+      A[4][3] = 36;
+      A[5][3] = 30;
+      A[0][4] = 32;
+      A[1][4] = 34;
+      A[2][4] = 35;
+      A[3][4] = 29;
+      A[4][4] = 28;
+      A[5][4] = 38;
+      A[0][5] = 41;
+      A[1][5] = 23;
+      A[2][5] = 22;
+      A[3][5] = 44;
+      A[4][5] = 45;
+      A[5][5] = 19;
+      A[0][6] = 49;
+      A[1][6] = 15;
+      A[2][6] = 14;
+      A[3][6] = 52;
+      A[4][6] = 53;
+      A[5][6] = 11;
+      A[0][7] = 8;
+      A[1][7] = 58;
+      A[2][7] = 59;
+      A[3][7] = 5;
+      A[4][7] = 4;
+      A[5][7] = 62;
+
+
+      mat A_copy(A);
+
+      mat sigma;
+      mat V;
+
+      bool res = svd(A, sigma, V);
+      TEST_ASSERT(res);
+
+      for (int r = 0; r < m; ++r)
+        {
+        for (int c = 0; c < n; ++c)
+          {
+          double val = 0.0;
+          for (int k = 0; k < n; ++k)
+            {
+            val += A[r][k] * sigma(k) * V[c][k];
+            }
+          TEST_EQ_CLOSE(A_copy[r][c], val, 1e-12);
+          }
+        }
+
+      A = A_copy;
+      mat inv;
+      int p = pseudo_inverse(inv, A, 1e-10);
+      TEST_EQ(3, p);
+      double b[6] = { 260.0, 260.0, 260.0, 260.0, 260.0, 260.0 };
+
+      double x[8];
+      for (int j = 0; j < 8; ++j)
+        {
+        x[j] = 0.0;
+        for (int i = 0; i < 6; ++i)
+          x[j] += inv[j][i] * b[i];
+        }
+
+      double n2 = 0.0;
+      double error[6];
+      for (int i = 0; i < 6; ++i)
+        {
+        error[i] = -b[i];
+        for (int j = 0; j < 8; ++j)
+          error[i] += A_copy[i][j] * x[j];
+        n2 += error[i] * error[i];
+        }
+      TEST_ASSERT(n2 < 1e-8);
+      }
 
     void svd_1_array()
       {
@@ -449,6 +580,35 @@ namespace prag
 
       matf3 sigma;
       matf9 V;
+
+      bool res = svd(A, sigma, V);
+      TEST_ASSERT(res);
+
+      for (int r = 0; r < m; ++r)
+        {
+        for (int c = 0; c < n; ++c)
+          {
+          float val = 0.f;
+          for (int k = 0; k < n; ++k)
+            {
+            val += A[r][k] * sigma(k) * V[c][k];
+            }
+          TEST_EQ_CLOSE(A_copy[r][c], val, 1e-5);
+          }
+        }
+      }
+
+    void svd_3_array()
+      {
+      int m = 3;
+      int n = 4;
+      matf12 A(m, n);
+      for (int i = 1; i <= 12; ++i)
+        A[(i - 1) % 3][(i - 1) / 3] = float(i);
+      matf12 A_copy(A);
+
+      matf4 sigma;
+      matf16 V;
 
       bool res = svd(A, sigma, V);
       TEST_ASSERT(res);
@@ -593,6 +753,109 @@ namespace prag
         {
         error[i] = -b[i];
         for (int j = 0; j < 6; ++j)
+          error[i] += A_copy[i][j] * x[j];
+        n2 += error[i] * error[i];
+        }
+      TEST_ASSERT(n2 < 1e-8);
+      }
+
+    void pseudo_inverse_3_array()
+      {
+      int m = 6;
+      int n = 8;
+      mat64 A(m, n);
+
+      A[0][0] = 64;
+      A[1][0] = 2;
+      A[2][0] = 3;
+      A[3][0] = 61;
+      A[4][0] = 60;
+      A[5][0] = 6;
+      A[0][1] = 9;
+      A[1][1] = 55;
+      A[2][1] = 54;
+      A[3][1] = 12;
+      A[4][1] = 13;
+      A[5][1] = 51;
+      A[0][2] = 17;
+      A[1][2] = 47;
+      A[2][2] = 46;
+      A[3][2] = 20;
+      A[4][2] = 21;
+      A[5][2] = 43;
+      A[0][3] = 40;
+      A[1][3] = 26;
+      A[2][3] = 27;
+      A[3][3] = 37;
+      A[4][3] = 36;
+      A[5][3] = 30;
+      A[0][4] = 32;
+      A[1][4] = 34;
+      A[2][4] = 35;
+      A[3][4] = 29;
+      A[4][4] = 28;
+      A[5][4] = 38;
+      A[0][5] = 41;
+      A[1][5] = 23;
+      A[2][5] = 22;
+      A[3][5] = 44;
+      A[4][5] = 45;
+      A[5][5] = 19;
+      A[0][6] = 49;
+      A[1][6] = 15;
+      A[2][6] = 14;
+      A[3][6] = 52;
+      A[4][6] = 53;
+      A[5][6] = 11;
+      A[0][7] = 8;
+      A[1][7] = 58;
+      A[2][7] = 59;
+      A[3][7] = 5;
+      A[4][7] = 4;
+      A[5][7] = 62;
+
+
+      mat64 A_copy(A);
+
+      mat64 sigma;
+      mat64 V;
+
+      bool res = svd(A, sigma, V);
+      TEST_ASSERT(res);
+
+      for (int r = 0; r < m; ++r)
+        {
+        for (int c = 0; c < n; ++c)
+          {
+          double val = 0.0;
+          for (int k = 0; k < n; ++k)
+            {
+            val += A[r][k] * sigma(k) * V[c][k];
+            }
+          TEST_EQ_CLOSE(A_copy[r][c], val, 1e-12);
+          }
+        }
+
+      A = A_copy;
+      mat64 inv;
+      int p = pseudo_inverse(inv, A, 1e-10);
+      TEST_EQ(3, p);
+      double b[6] = { 260.0, 260.0, 260.0, 260.0, 260.0, 260.0 };
+
+      double x[8];
+      for (int j = 0; j < 8; ++j)
+        {
+        x[j] = 0.0;
+        for (int i = 0; i < 6; ++i)
+          x[j] += inv[j][i] * b[i];
+        }
+
+      double n2 = 0.0;
+      double error[6];
+      for (int i = 0; i < 6; ++i)
+        {
+        error[i] = -b[i];
+        for (int j = 0; j < 8; ++j)
           error[i] += A_copy[i][j] * x[j];
         n2 += error[i] * error[i];
         }
@@ -3345,7 +3608,7 @@ namespace prag
       m2(1, 1) = 4.0;
       m2(2, 1) = 9.0;
 
-      m1 = m1*m2;
+      m1 = m1 * m2;
       TEST_EQ(2, m1.rows());
       TEST_EQ(2, m1.cols());
       TEST_EQ(13.0, m1(0, 0));
@@ -3367,7 +3630,7 @@ namespace prag
       mat a2(2, 2);
       a1 << 1, 2, 3, 4;
       a2 << 1, 2, -1, -1;
-      a1 += a1*a2;
+      a1 += a1 * a2;
       TEST_EQ(2, a1.rows());
       TEST_EQ(2, a1.cols());
       TEST_EQ(0.0, a1(0, 0));
@@ -3443,7 +3706,7 @@ namespace prag
     void datatest()
       {
       mat4 m(2, 2);
-      m << 1,2,3,4;
+      m << 1, 2, 3, 4;
       double* p = m.data();
       TEST_EQ(1.0, *p++);
       TEST_EQ(2.0, *p++);
@@ -3458,16 +3721,61 @@ namespace prag
         {
         for (int j = 0; j < 5; ++j)
           {
-          m(i, j) = (double)(i * 5 + j);          
+          m(i, j) = (double)(i * 5 + j);
           }
         }
       m(0, 0) = 100.0;
       double tr = trace(m);
       TEST_EQ(100. + (1.*5. + 1.) + (2.*5. + 2.) + (3.*5. + 3.) + (4.*5. + 4.), tr);
-      tr = trace(m+m);
+      tr = trace(m + m);
       TEST_EQ((100. + (1.*5. + 1.) + (2.*5. + 2.) + (3.*5. + 3.) + (4.*5. + 4.))*2.0, tr);
       }
-    }   
+
+    void vconcattest()
+      {
+      matrix<double> m_up(3, 3);
+      m_up << 1, 2, 3, 4, 5, 6, 7, 8, 9;
+      matrix<double> m_mid(4, 3);
+      m_mid << 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21;
+      matrix<double> m_down(3, 3);
+      m_down << 22, 23, 24, 25, 26, 27, 28, 29, 30;
+      matrix<double> m_concat(10, 3);
+      m_concat << m_up, m_mid, m_down;
+      auto it = m_concat.begin();
+      for (int i = 1; i < 31; ++i)
+        {
+        TEST_EQ(*it++, i);
+        }
+      TEST_ASSERT(it == m_concat.end());
+      }
+
+    void hconcattest()
+      {
+      matrix<double> m_left(3, 3);
+      m_left << 1, 2, 3, 4, 5, 6, 7, 8, 9;
+      matrix<double> m_mid(3, 4);
+      m_mid << 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21;
+      matrix<double> m_right(3, 3);
+      m_right << 22, 23, 24, 25, 26, 27, 28, 29, 30;
+      matrix<double> m_concat(3, 10);
+      m_concat << m_left, m_mid, m_right;
+      auto it = m_concat.begin();
+      for (int r = 0; r < 3; ++r)
+        {
+        for (int c = 0; c < 3; ++c)
+          {
+          TEST_EQ(m_concat(r, c), m_left(r, c));
+          TEST_EQ(m_concat(r, c+3), m_mid(r, c));
+          TEST_EQ(m_concat(r, c+7), m_right(r, c));
+          }
+        }   
+      for (int r = 0; r < 3; ++r)
+        {
+        TEST_EQ(m_concat(r, 6), m_mid(r, 3));
+        }
+      }
+
+    }
   }
 
 namespace
@@ -3503,12 +3811,16 @@ void run_all_pragpack_tests()
   vector_test_array();
   svd_1();
   svd_2();
+  svd_3();
   pseudo_inverse_1();
   pseudo_inverse_2();
+  pseudo_inverse_3();
   svd_1_array();
   svd_2_array();
+  svd_3_array();
   pseudo_inverse_1_array();
   pseudo_inverse_2_array();
+  pseudo_inverse_3_array();
   adding().test();
   adding2().test();
   adding3().test();
@@ -3628,4 +3940,6 @@ void run_all_pragpack_tests()
   noaliasing();
   datatest();
   tracetest();
+  vconcattest();
+  hconcattest();
   }

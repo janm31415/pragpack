@@ -1653,6 +1653,13 @@ namespace prag
     return ci;
     }
 
+  template <class T, class Container, class ExprOp>
+  CommaConcatenator<T, Container> operator << (matrix<T, Container>& m, const Expr<ExprOp>& matrix_to_concat)
+    {
+    CommaConcatenator<T, Container> ci(&m, matrix_to_concat);
+    return ci;
+    }
+
   ///////////////////////////////////////////////////////////////////////////////
   // Adding matrices
   ///////////////////////////////////////////////////////////////////////////////

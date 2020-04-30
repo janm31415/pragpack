@@ -3749,6 +3749,20 @@ namespace prag
       TEST_ASSERT(it == m_concat.end());
       }
 
+    void vconcattest2()
+      {
+      matrix<double> m_1(9, 3);
+      int i = 1;
+      for (auto& v : m_1)
+        v = i++;
+
+      matrix<double> m_2(9, 3);
+
+      m_2 << block(m_1, 0, 0, 3, 3), block(m_1, 3, 0, 3, 3), block(m_1, 6, 0, 3, 3);
+
+      TEST_ASSERT(m_1 == m_2);
+      }
+
     void hconcattest()
       {
       matrix<double> m_left(3, 3);
@@ -3773,6 +3787,20 @@ namespace prag
         {
         TEST_EQ(m_concat(r, 6), m_mid(r, 3));
         }
+      }
+
+    void hconcattest2()
+      {
+      matrix<double> m_1(3, 9);
+      int i = 1;
+      for (auto& v : m_1)
+        v = i++;
+
+      matrix<double> m_2(3, 9);
+
+      m_2 << block(m_1, 0, 0, 3, 3), block(m_1, 0, 3, 3, 3), block(m_1, 0, 6, 3, 3);
+
+      TEST_ASSERT(m_1 == m_2);
       }
 
     }
@@ -3942,4 +3970,6 @@ void run_all_pragpack_tests()
   tracetest();
   vconcattest();
   hconcattest();
-  }
+  vconcattest2();
+  hconcattest2();
+}

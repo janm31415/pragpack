@@ -3,8 +3,8 @@
 // PrAGPack  :  Pragmatic Algebra Gems Package
 //
 // Author    :  Jan Maes                                            
-// Version   :  1.3
-// Date      :  30 April 2020
+// Version   :  1.4
+// Date      :  30 June 2020
 // License   :  MIT License
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,8 @@ V1.2: 31 January 2020
 V1.3: 30 April 2020
   - allowing svd when m < n
   - concatenation of matrices with << operator in horizontal or vertical direction
+V1.4: 30 June 2020
+  - adding zeros, ones, identity in templatized form, e.g. zeros<float>(m, n).
 */
 
 
@@ -2191,14 +2193,32 @@ namespace prag
     return Expr<Constant<double> >(Constant<double>(0.0, rows, cols));
     }
 
+  template <class T>
+  inline Expr<Constant<T> > zeros(uint64_t rows, uint64_t cols)
+    {
+    return Expr<Constant<T> >(Constant<T>((T)0, rows, cols));
+    }
+
   inline Expr<Constant<double> > ones(uint64_t rows, uint64_t cols)
     {
     return Expr<Constant<double> >(Constant<double>(1.0, rows, cols));
     }
 
+  template <class T>
+  inline Expr<Constant<T> > ones(uint64_t rows, uint64_t cols)
+    {
+    return Expr<Constant<T> >(Constant<T>((T)1, rows, cols));
+    }
+
   inline Expr<Identity<double> > identity(uint64_t rows, uint64_t cols)
     {
     return Expr<Identity<double> >(Identity<double>(rows, cols));
+    }
+
+  template <class T>
+  inline Expr<Identity<T> > identity(uint64_t rows, uint64_t cols)
+    {
+    return Expr<Identity<T> >(Identity<T>(rows, cols));
     }
 
   ///////////////////////////////////////////////////////////////////////////////

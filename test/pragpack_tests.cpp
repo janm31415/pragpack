@@ -2002,9 +2002,9 @@ namespace prag
         }
       };
 
-    void matrix_init()
+    void matrix_init_double()
       {
-      matf m = zeros(3, 4);
+      mat m = zeros(3, 4);
       TEST_EQ(3, m.rows());
       TEST_EQ(4, m.cols());
       for (auto value : m)
@@ -2023,7 +2023,7 @@ namespace prag
         for (int j = 0; j < 3; ++j)
           TEST_EQ(i == j ? 1.0 : 0.0, m(i, j));
 
-      matf16 m16 = zeros(3, 4);
+      mat16 m16 = zeros(3, 4);
       TEST_EQ(3, m16.rows());
       TEST_EQ(4, m16.cols());
       for (auto value : m16)
@@ -2036,6 +2036,47 @@ namespace prag
         TEST_EQ(1.f, value);
 
       m16 = identity(2, 3);
+      TEST_EQ(2, m16.rows());
+      TEST_EQ(3, m16.cols());
+      for (int i = 0; i < 2; ++i)
+        for (int j = 0; j < 3; ++j)
+          TEST_EQ(i == j ? 1.0 : 0.0, m16(i, j));
+      }
+
+    void matrix_init_float()
+      {
+      matf m = zeros<float>(3, 4);
+      TEST_EQ(3, m.rows());
+      TEST_EQ(4, m.cols());
+      for (auto value : m)
+        TEST_EQ(0.f, value);
+
+      m = ones<float>(5, 7);
+      TEST_EQ(5, m.rows());
+      TEST_EQ(7, m.cols());
+      for (auto value : m)
+        TEST_EQ(1.f, value);
+
+      m = identity<float>(2, 3);
+      TEST_EQ(2, m.rows());
+      TEST_EQ(3, m.cols());
+      for (int i = 0; i < 2; ++i)
+        for (int j = 0; j < 3; ++j)
+          TEST_EQ(i == j ? 1.0 : 0.0, m(i, j));
+
+      matf16 m16 = zeros<float>(3, 4);
+      TEST_EQ(3, m16.rows());
+      TEST_EQ(4, m16.cols());
+      for (auto value : m16)
+        TEST_EQ(0.f, value);
+
+      m16 = ones<float>(1, 2);
+      TEST_EQ(1, m16.rows());
+      TEST_EQ(2, m16.cols());
+      for (auto value : m16)
+        TEST_EQ(1.f, value);
+
+      m16 = identity<float> (2, 3);
       TEST_EQ(2, m16.rows());
       TEST_EQ(3, m16.cols());
       for (int i = 0; i < 2; ++i)
@@ -3903,7 +3944,8 @@ void run_all_pragpack_tests()
   block_matrix();
   matrix_comparison().test();
   matrix_capacity().test();
-  matrix_init();
+  matrix_init_float();
+  matrix_init_double();
   lu_dcmp();
   lu_dcmp2();
   lu_bksb();

@@ -1,4 +1,9 @@
 # PrAGPack: Pragmatic Algebra Gems Package
+
+Note: pragpack is deprecated. 
+It has been replaced by the header-only file [mat.h in jtk](https://github.com/janm31415/jtk/blob/master/jtk/mat.h).
+
+
 Single header file matrix library using expression templates.
 
 The basic matrix type is
